@@ -259,6 +259,10 @@
                         <div id="clothing"></div>
                     </div>
                     <div class="info-section">
+                        <h3>🎵 संगीत</h3>
+                        <div id="music"></div>
+                    </div>
+                    <div class="info-section">
                         <h3>🍜 भोजन</h3>
                         <div id="food"></div>
                     </div>
@@ -368,7 +372,8 @@
                 festivals: `<p>दिवाली (रोशनी का त्योहार), होली (रंगों का त्योहार), नवरात्रि/दुर्गा पूजा</p><img src='festivals/india.jpg' alt='होली'>`,
                 clothing: `<p>साड़ी (महिलाएँ), धोती/कुर्ता (पुरुष), शेरवानी (औपचारिक पोशाक), लहंगा चोली (महिलाओं की उत्सव पोशाक)</p><img src='dress/indian dress.png' alt='साड़ी'>`,
                 food: "<p>बिरयानी, बटर चिकन, मसाला डोसा, चाट, रोगन जोश</p><img src='food/indiafood.jpg' alt='भारत भोजन'>",
-                languages: "<p>हिंदी: नमस्ते (Namaste - नमस्ते), धन्यवाद (Dhanyavaad - धन्यवाद)</p>"
+                languages: "<p>हिंदी: नमस्ते (Namaste - नमस्ते), धन्यवाद (Dhanyavaad - धन्यवाद)</p>",
+                music: `<p>भारतीय शास्त्रीय संगीत (हिंदुस्तानी और कर्नाटिक), बॉलीवुड संगीत, भक्ति संगीत</p><iframe src="https://www.youtube.com/embed/K7z1OqKLdHw?si=oQmQoYXxamUV_VFb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
             },
             thailand: {
                 name: "थाईलैंड",
@@ -403,6 +408,7 @@
         const heritage = document.getElementById('heritage');
         const festivals = document.getElementById('festivals');
         const clothing = document.getElementById('clothing');
+        const music = document.getElementById('music');
         const food = document.getElementById('food');
         const languages = document.getElementById('languages');
 
@@ -421,6 +427,7 @@
                     heritage.innerHTML = countryData[countryCode].heritage;
                     festivals.innerHTML = countryData[countryCode].festivals;
                     clothing.innerHTML = countryData[countryCode].clothing;
+                    music.innerHTML = countryData[countryCode].music || "<p>कोई जानकारी नहीं</p>";
                     food.innerHTML = countryData[countryCode].food;
                     languages.innerHTML = countryData[countryCode].languages;
                     
