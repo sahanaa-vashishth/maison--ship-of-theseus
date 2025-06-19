@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>इंटरएक्टिव एशिया मानचित्र</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('asia-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Asia_%28orthographic_projection%29.svg/1200px-Asia_%28orthographic_projection%29.svg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 20px 0;
+        }
+        
+        .country {
+            position: absolute;
+            padding: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .country:hover {
+            background-color: rgba(255, 215, 0, 0.7);
+            transform: scale(1.1);
+            z-index: 100;
+        }
+        
+        .info-panel {
+            display: none;
+            position: absolute;
+            width: 300px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .info-panel h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .info-section {
+            margin-bottom: 15px;
+        }
+        
+        .info-section h3 {
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+        
+        .info-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #777;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .back-to-start {
+            display: inline-block;
+            margin-bottom: 20px;
+            background: #3498db;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        .back-to-start:hover {
+            background: #217dbb;
+        }
+        
+        /* Menubar styles from menubar[1].html */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e3b2c;
+            padding: 12px 20px;
+            color: #f5f0df;
+        }
+        .navbar a {
+            color: #f5f0df;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #ffe2b8;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid #f5f0df;
+            color: #f5f0df;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background-color: #774d3a;
+        }
+        select.language {
+            background: #5e3b2c;
+            color: #f5f0df;
+            border: 1px solid #f5f0df;
+            border-radius: 5px;
+            padding: 5px;
+            margin-left: 15px;
+        }
+        .dark-mode {
+            background-color: #2b1c17 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode .navbar {
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a,
+        .dark-mode .theme-toggle,
+        .dark-mode select.language {
+            color: #f5e9dc !important;
+            border-color: #f5e9dc !important;
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a:hover {
+            color: #ffdbb4 !important;
+        }
+        .dark-mode .container {
+            background: #2b1c17 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode h1, .dark-mode p {
+            color: #f5e9dc !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menubar from menubar[1].html -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <a href="start.html">Home</a>
+        <a href="maps-hindi.html">एक्सप्लोर</a>
+        <a href="asia-travel-hindi.html">खोज</a>
+        <a href="profile.html">प्रोफाइल</a>
+      </div>
+      <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+        <select class="language" id="language-select" title="भाषा चुनें">
+          <option value="hi">हिन्दी</option>
+          <option value="en">अंग्रे़ी</option>
+        </select>
+      </div>
+    </nav>
+    <div class="container">
+        <a href="start.html" class="back-to-start">← प्रारंभ पर वापस जाएं</a>
+        <h1>एशियाई संस्कृतियों का अन्वेषण करें</h1>
+        <p>किसी भी देश पर होवर करें और उसकी विरासत, त्योहारों, वस्त्रों, संगीत, भोजन और भाषाओं के बारे में जानें!</p>
+        
+        <div class="map-container" id="map">
+            <!-- Countries will be positioned here -->
+            <div class="country" style="top: 15%; left: 30%;" data-country="russia">रूस</div>
+            <div class="country" style="top: 25%; left: 25%;" data-country="kazakhstan">कजाखस्तान</div>
+            <div class="country" style="top: 30%; left: 40%;" data-country="mongolia">मंगोलिया</div>
+            <div class="country" style="top: 35%; left: 20%;" data-country="turkey">तुर्की</div>
+            <div class="country" style="top: 40%; left: 30%;" data-country="iran">ईरान</div>
+            <div class="country" style="top: 40%; left: 50%;" data-country="china">चीन</div>
+            <div class="country" style="top: 35%; left: 70%;" data-country="japan">जापान</div>
+            <div class="country" style="top: 45%; left: 25%;" data-country="saudi-arabia">सऊदी अरब</div>
+            <div class="country" style="top: 50%; left: 35%;" data-country="india">भारत</div>
+            <div class="country" style="top: 55%; left: 45%;" data-country="thailand">थाईलैंड</div>
+            <div class="country" style="top: 50%; left: 25%;" data-country="yemen">यमन</div>
+            <div class="country" style="top: 35%; left: 65%;" data-country="korea">कोरिया</div>
+            <div class="country" style="top: 60%; left: 65%;" data-country="philippines">फिलीपींस</div>
+            <div class="country" style="top: 65%; left: 50%;" data-country="malaysia">मलेशिया</div>
+            <div class="country" style="top: 70%; left: 55%;" data-country="indonesia">इंडोनेशिया</div>
+            
+            <div class="info-panel" id="infoPanel">
+                <span class="close-btn" id="closeBtn">×</span>
+                <h2 id="countryName">देश का नाम</h2>
+                <div class="info-sections">
+                    <div class="info-section">
+                        <h3>🏯 विरासत और स्मारक</h3>
+                        <div id="heritage"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3>🎊 त्योहार</h3>
+                        <div id="festivals"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3>👘 पारंपरिक वस्त्र</h3>
+                        <div id="clothing"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3>🍜 भोजन</h3>
+                        <div id="food"></div>
+                    </div>
+                    <div class="info-section">
+                        <h3>🗣️ भाषाएँ</h3>
+                        <div id="languages"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Country data
+        const countryData = {
+            russia: {
+                name: "रूस (एशियाई भाग)",
+                heritage: `<p>मॉस्को में क्रेमलिन और रेड स्क्वायर (हालांकि तकनीकी रूप से यूरोप में), लेक बैकाल (दुनिया की सबसे गहरी मीठे पानी की झील)</p><img src='Monuments/kremlin.png' alt='क्रेमलिन'>`,
+                festivals: `<p>मस्लेनित्सा (बटर वीक) - लेंट से पहले पैनकेक और पुतले जलाने का उत्सव</p><img src='festivals/maslenitsa.png' alt='मस्लेनित्सा'>`,
+                clothing: `<p>महिलाओं के लिए पारंपरिक रूसी सराफ़न (पिनाफोर ड्रेस) और कोकोशनिक (हेडड्रेस), पुरुषों के लिए कोसोवोरोटका (कढ़ाई वाली शर्ट)</p><img src='dress/russian clothes.png' alt='रूसी वस्त्र'>`,
+                food: "<p>बोर्स्ट (बीट सूप), पेलमेनी (पकौड़ी), ब्लिनी (पैनकेक)</p><img src='food/russiafood.jpg' alt='रूसी भोजन'>",
+                languages: "<p>रूसी: Здравствуйте (Zdravstvuyte - नमस्ते), Спасибо (Spasibo - धन्यवाद)</p>"
+            },
+            kazakhstan: {
+                name: "कजाखस्तान",
+                heritage: `<p>खोजा अहमद यसवी का मकबरा, तमगली पेट्रोग्लिफ्स, बायकोनूर कॉस्मोड्रोम</p><img src='Monuments/mausoleum of khoja ahmed yasawi.png' alt='खोजा अहमद यसवी का मकबरा'>`,
+                festivals: `<p>नौरिज़ (फारसी नव वर्ष मार्च में मनाया जाता है), कुरबान ऐत (बलिदान का इस्लामी त्योहार)</p><img src='festivals/nauryz.png' alt='नौरिज़'>`,
+                clothing: `<p>पारंपरिक कजाख वस्त्रों में शापन (रोब), सौकेले (दुल्हन का हेडड्रेस), और कोयलेक (ड्रेस) शामिल हैं</p><img src='dress/kazakh clothing.png' alt='कजाख वस्त्र'>`,
+                food: "<p>बेशबर्मक (नूडल्स के साथ उबला हुआ मांस का राष्ट्रीय व्यंजन), काज़ी (घोड़े के मांस की सॉसेज), बौरसाक (तला हुआ आटा)</p><img src='food/kazakhstanfood.jpg' alt='कजाखस्तान भोजन'>",
+                languages: "<p>कजाख: Сәлем (Sälem - नमस्ते), Рақмет (Raqmet - धन्यवाद)</p>"
+            },
+            mongolia: {
+                name: "मंगोलिया",
+                heritage: `<p>चंगेज खान स्टैच्यू कॉम्प्लेक्स, एर्डेन ज़ू मठ, ओरखोन घाटी सांस्कृतिक परिदृश्य</p><img src='Monuments/mongoliamon.jpg' alt='मंगोलियाई स्मारक'>`,
+                festivals: `<p>नादाम फेस्टिवल (कुश्ती, तीरंदाजी और घुड़दौड़), त्सगान सर (चंद्र नव वर्ष)</p><img src='festivals/mongolia.jpg' alt='नादाम फेस्टिवल'>`,
+                clothing: `<p>डील (सैश के साथ पहना जाने वाला पारंपरिक रोब), गुटल (चमड़े के जूते), पारंपरिक टोपी क्षेत्र और मौसम के अनुसार अलग-अलग होती है</p><img src='dress/mongolia dress.png' alt='मंगोलियाई डील'>`,
+                food: "<p>बुज़ (स्टीम्ड पकौड़ी), खोरखोग (पत्थरों के साथ पकाया गया बारबेक्यू मांस), आइराग (खमीरीकृत घोड़ी का दूध)</p><img src='food/mongoliafood.jpg' alt='मंगोलिया भोजन'>",
+                languages: "<p>मंगोलियाई: Сайн байна уу (Sain baina uu - नमस्ते), Баярлалаа (Bayarlalaa - धन्यवाद)</p>"
+            },
+            turkey: {
+                name: "तुर्की",
+                heritage: "<p>हागिया सोफिया, कप्पादोकिया की चट्टानी संरचनाएं, एफिसस प्राचीन शहर, पामुक्काले थर्मल पूल</p><img src='Monuments/turkey.png'>",
+                festivals: `<p>इस्तांबुल संगीत महोत्सव, ऊंट कुश्ती उत्सव, हिदरेलेज़ (वसंत उत्सव)</p><img src='festivals/turkeyf.png' alt='ऊंट कुश्ती'>`,
+                clothing: `<p>पारंपरिक ओटोमन काफ़्तान, फ़ेज़ टोपी, शालवार (ढीली पतलून), याज़मा (हेडस्कार्फ़)</p><img src='dress/turkeyd.png' alt='तुर्की वस्त्र'>`,
+                food: "<p>कबाब, बकलावा, मेज़े (ऐपेटाइज़र), लहमाकुन (तुर्की पिज्जा), तुर्की डिलाइट</p><img src='food/turkeyfood.png' alt='तुर्की भोजन'>",
+                languages: "<p>तुर्की: Merhaba (नमस्ते), Teşekkür ederim (धन्यवाद)</p>"
+            },
+            iran: {
+                name: "ईरान",
+                heritage: `<p>पर्सेपोलिस, नक्श-ए जहान स्क्वायर, पसरगादे, गोलेस्तान पैलेस</p><img src='Monuments/iranmon.jpg' alt='ईरान स्मारक'>`,
+                festivals: `<p>नौरोज़ (फारसी नव वर्ष), यल्डा नाइट (शीतकालीन संक्रांति उत्सव), चहारशनबे सूरी (अग्नि उत्सव)</p><img src='festivals/iran.jpg' alt='नौरोज़'>`,
+                clothing: `<p>पारंपरिक फारसी वस्त्रों में चादोर (पूर्ण शरीर का लबादा), शालवार (पैंट), और कोलाह (टोपी) शामिल हैं</p><img src='dress/iran dress.png' alt='ईरानी वस्त्र'>`,
+                food: "<p>चेलो कबाब, घोरमेह सब्ज़ी (जड़ी बूटी स्टू), फेसेंजन (अनार अखरोट स्टू), तहचीन (चावल केक)</p><img src='food/iranfood.jpg' alt='ईरान भोजन'>",
+                languages: "<p>फारसी: سلام (Salam - नमस्ते), متشکرم (Moteshakeram - धन्यवाद)</p>"
+            },
+            "saudi-arabia": {
+                name: "सऊदी अरब",
+                heritage: `<p>अल-हिज्र पुरातात्विक स्थल (मदाइन सालेह), अद-दिर'इया में अत-तुराइफ जिला, मस्मक किला</p><img src='Monuments/saudimon.jpg' alt='सऊदी स्मारक'>`,
+                festivals: `<p>जनादरिया सांस्कृतिक उत्सव, ईद अल-फितर, ईद अल-अधा</p><img src='festivals/Saudi.jpg' alt='जनादरिया उत्सव'>`,
+                clothing: `<p>थोब (लंबी सफेद रोब), गुटरा (हेडस्कार्फ़), अगाल (काली रस्सी), अबाया (महिलाओं का लबादा)</p><img src='dress/saudi dress.png' alt='सऊदी वस्त्र'>`,
+                food: "<p>कब्सा (मांस के साथ मसालेदार चावल), मंडी (मांस और चावल का व्यंजन), मुतब्बक (भरवां पेस्ट्री), खजूर</p><img src='food/saudiarabiafood.jpg' alt='सऊदी भोजन'>",
+                languages: "<p>अरबी: مرحبا (Marhaba - नमस्ते), شكرا (Shukran - धन्यवाद)</p>"
+            },
+            korea: {
+                name: "कोरिया",
+                heritage: `<p>ग्योंगबोकगुंग पैलेस, बुलगुक्सा मंदिर, चांगदोकगुंग पैलेस, ह्वासोंग किला</p><img src='Monuments/koreamon.jpg' alt='कोरिया स्मारक'>`,
+                festivals: `<p>चुसोक (कोरियाई थैंक्सगिविंग), सोल्लाल (चंद्र नव वर्ष), बोरयोंग मड फेस्टिवल</p><img src='festivals/korea.jpg' alt='सोल्लाल'>`,
+                clothing: `<p>हानबोक (जीवंत रंगों और सरल रेखाओं के साथ पारंपरिक कोरियाई पोशाक)</p><img src='dress/korean dress.png' alt='हानबोक'>`,
+                food: "<p>किमची, बिबिमबाप, बुलगोगी, ट्टोकबोक्की (मसालेदार चावल केक), कोरियाई बारबेक्यू</p><img src='food/koreafood.jpg' alt='कोरिया भोजन'>",
+                languages: "<p>कोरियाई: 안녕하세요 (Annyeonghaseyo - नमस्ते), 감사합니다 (Gamsahamnida - धन्यवाद)</p>"
+            },
+            philippines: {
+                name: "फिलीपींस",
+                heritage: `<p>फिलीपीन कॉर्डिलेरास के चावल के खेत, फिलीपींस के बारोक चर्च, विगान ऐतिहासिक शहर</p><img src='Monuments/philipeneesmon.jpg' alt='फिलीपींस स्मारक'>`,
+                festivals: `<p>सिनुलोग फेस्टिवल, अति-अतिहान फेस्टिवल, पहियास फेस्टिवल, मास्कारा फेस्टिवल</p><img src='festivals/philipines.jpg' alt='सिनुलोग'>`,
+                clothing: `<p>बरोंग तगालोग (कढ़ाई वाली फॉर्मल शर्ट), बारो'ट साया (महिलाओं की ड्रेस), मालोंग (ट्यूब स्कर्ट)</p><img src='dress/philippines dress.png' alt='फिलिपिनो वस्त्र'>`,
+                food: "<p>अडोबो, सिनिगांग, लेचोन (रोस्ट पिग), हालो-हालो (डेज़र्ट), लंपिया (स्प्रिंग रोल्स)</p><img src='food/PHILIPPINESfood.jpg' alt='फिलीपींस भोजन'>",
+                languages: "<p>फिलिपिनो: Kamusta (नमस्ते), Salamat (धन्यवाद)</p>"
+            },
+            indonesia: {
+                name: "इंडोनेशिया",
+                heritage: `<p>बोरोबुदुर मंदिर, प्रम्बानन मंदिर, कोमोडो नेशनल पार्क, उबुद का सांस्कृतिक परिदृश्य</p><img src='Monuments/indonesiamon.jpg' alt='इंडोनेशिया स्मारक'>`,
+                festivals: `<p>न्येपी (बाली का मौन दिवस), गालुंगन, वैसाक (बुद्ध का जन्मदिन), जेम्बर फैशन कार्निवल</p><img src='festivals/indonesia.jpg' alt='न्येपी'>`,
+                clothing: `<p>बाटिक (वैक्स-रेज़िस्ट डाईड फैब्रिक), केबाया (महिलाओं की ब्लाउज), सोंगकेट (गोल्ड-थ्रेडेड फैब्रिक)</p><img src='dress/indonesia dress.png' alt='इंडोनेशियाई वस्त्र'>`,
+                food: "<p>नासी गोरेंग (फ्राइड राइस), सतय, रेंडांग, गाडो-गाडो (वेजिटेबल सलाद), सोटो (सूप)</p><img src='food/indonesia.jpg' alt='इंडोनेशिया भोजन'>",
+                languages: "<p>इंडोनेशियाई: Halo (नमस्ते), Terima kasih (धन्यवाद)</p>"
+            },
+            china: {
+                name: "चीन",
+                heritage: "<p>चीन की महान दीवार, टेराकोटा सेना, निषिद्ध शहर</p><img src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/The_Great_Wall_of_China_at_Jinshanling-edit.jpg/800px-The_Great_Wall_of_China_at_Jinshanling-edit.jpg' alt='महान दीवार'>",
+                festivals: `<p>चीनी नव वर्ष (स्प्रिंग फेस्टिवल), मिड-ऑटम फेस्टिवल (मूनकेक फेस्टिवल)</p><img src='festivals/China.jpg' alt='चीनी नव वर्ष'>`,
+                clothing: `<p>हानफू (पारंपरिक हान चीनी वस्त्र), किपाओ/चीयोंगसम (आधुनिक पारंपरिक पोशाक)</p><img src='dress/china dress.png' alt='हानफू'>`,
+                food: "<p>बीजिंग डक, डिम सम, हॉट पॉट, जियाओलोंगबाओ (सूप डम्पलिंग)</p><img src='food/chinafood.jpg' alt='चीन भोजन'>",
+                languages: "<p>मंदारिन: 你好 (Nǐ hǎo - नमस्ते), 谢谢 (Xièxiè - धन्यवाद)</p>"
+            },
+            japan: {
+                name: "जापान",
+                heritage: `<p>माउंट फ़ूजी, किंकाकु-जी (स्वर्ण मंदिर), फुशिमी इनारी मंदिर (टोरी गेट्स के लिए प्रसिद्ध)</p><img src='Monuments/japan.jpg' alt='जापान स्मारक'>`,
+                festivals: `<p>चेरी ब्लॉसम फेस्टिवल (हनामी), गियोन मात्सुरी (क्योटो का प्रसिद्ध उत्सव)</p><img src='festivals/japan.jpg' alt='चेरी ब्लॉसम'>`,
+                clothing: `<p>किमोनो (पारंपरिक वस्त्र), युकाटा (ग्रीष्मकालीन किमोनो), हकामा (प्लीटेड स्कर्ट-पैंट)</p><img src='dress/japan dress.png' alt='किमोनो'>`,
+                food: "<p>सुशी, रेमन, टेम्पुरा, ओकोनोमियाकी (स्वादिष्ट पैनकेक)</p><img src='food/japanfood.jpg' alt='जापान भोजन'>",
+                languages: "<p>जापानी: こんにちは (Konnichiwa - नमस्ते), ありがとう (Arigatou - धन्यवाद)</p>"
+            },
+            india: {
+                name: "भारत",
+                heritage: `<p>ताज महल, कुतुब मीनार, हम्पी के खंडहर, अजंता और एलोरा की गुफाएँ</p><img src='Monuments/indianmonument.jpg' alt='भारत स्मारक'>`,
+                festivals: `<p>दिवाली (रोशनी का त्योहार), होली (रंगों का त्योहार), नवरात्रि/दुर्गा पूजा</p><img src='festivals/india.jpg' alt='होली'>`,
+                clothing: `<p>साड़ी (महिलाएँ), धोती/कुर्ता (पुरुष), शेरवानी (औपचारिक पोशाक), लहंगा चोली (महिलाओं की उत्सव पोशाक)</p><img src='dress/indian dress.png' alt='साड़ी'>`,
+                food: "<p>बिरयानी, बटर चिकन, मसाला डोसा, चाट, रोगन जोश</p><img src='food/indiafood.jpg' alt='भारत भोजन'>",
+                languages: "<p>हिंदी: नमस्ते (Namaste - नमस्ते), धन्यवाद (Dhanyavaad - धन्यवाद)</p>"
+            },
+            thailand: {
+                name: "थाईलैंड",
+                heritage: `<p>वाट अरुण (डॉन का मंदिर), अयुत्थया ऐतिहासिक पार्क, सुखोथाई ऐतिहासिक पार्क</p><img src='Monuments/thailandmon.jpg' alt='थाईलैंड स्मारक'>`,
+                festivals: `<p>सोंगक्रान (थाई नव वर्ष जल उत्सव), लोई क्राथोंग (तैरती लालटेन उत्सव)</p><img src='festivals/thailand.jpg' alt='लोई क्राथोंग'>`,
+                clothing: `<p>चुट थाई (पारंपरिक थाई वस्त्र), सबाई (साड़), सिन्ह (रैप-अराउंड स्कर्ट)</p><img src='dress/thailand dress.png' alt='थाई वस्त्र'>`,
+                food: "<p>पैड थाई, टॉम यम गूंग, सोम टम (हरी पपीता सलाद), मसामन करी</p><img src='food/thailandfood.jpg' alt='थाईलैंड भोजन'>",
+                languages: "<p>थाई: สวัสดี (S̄wạs̄dī - नमस्ते), ขอบคุณ (K̄hxbkhuṇ - धन्यवाद)</p>"
+            },
+            malaysia: {
+                name: "मलेशिया",
+                heritage: "<p>पेट्रोनास टावर्स, बटु गुफाएँ, जॉर्ज टाउन (पेनांग)</p><img src='Monuments/malaysiamonjpg.jpg' alt='मलेशिया स्मारक'>",
+                festivals: `<p>फुगोर फेस्टिवल, अति-अतिहान फेस्टिवल, पहियास फेस्टिवल, मास्कारा फेस्टिवल</p><img src='festivals/malasyiajpg.jpg' alt='मलेशिया उत्सव'>`,
+                clothing: `<p>बरोंग तगालोग (कढ़ाई वाली फॉर्मल शर्ट), बारो'ट साया (महिलाओं की ड्रेस), मालोंग (ट्यूब स्कर्ट)</p><img src='dress/malaysia dress.png' alt='मलेशियाई वस्त्र'>`,
+                food: "<p>अडोबो, सिनिगांग, लेचोन (रोस्ट पिग), हालो-हालो (डेज़र्ट), लंपिया (स्प्रिंग रोल्स)</p><img src='food/malaysiafood.jpg' alt='मलेशिया भोजन'>",
+                languages: "<p>फिलिपिनो: Kamusta (नमस्ते), Salamat (धन्यवाद)</p>"
+            },
+            yemen: {
+                name: "यमन",
+                heritage: "<p>सना का पुराना शहर, शिबाम, सोकोत्रा द्वीपसमूह</p><img src='Monuments/yemenmon.jpg' alt='यमन स्मारक'>",
+                festivals: `<p>होली (रंगों का त्योहार)</p><img src='festivals/yemen.jpg' alt='यमन उत्सव'>`,
+                clothing: `<p>वस्त्र विवर्धन</p><img src='dress/yemen dress.png' alt='यमनी वस्त्र'>`,
+                food: "<p>बिरयानी, बटर चिकन, मसाला डोसा, चाट, रोगन जोश</p><img src='food/yemenfood.jpg' alt='यमन भोजन'>",
+                languages: "<p>हिंदी: नमस्ते (Namaste - नमस्ते), धन्यवाद (Dhanyavaad - धन्यवाद)</p>"
+            }
+        };
+        // Get DOM elements
+        const countries = document.querySelectorAll('.country');
+        const infoPanel = document.getElementById('infoPanel');
+        const closeBtn = document.getElementById('closeBtn');
+        const countryName = document.getElementById('countryName');
+        const heritage = document.getElementById('heritage');
+        const festivals = document.getElementById('festivals');
+        const clothing = document.getElementById('clothing');
+        const food = document.getElementById('food');
+        const languages = document.getElementById('languages');
+
+        // Add event listeners to countries
+        countries.forEach(country => {
+            country.addEventListener('mouseover', function() {
+                const countryCode = this.getAttribute('data-country');
+                if (countryData[countryCode]) {
+                    // Position the info panel near the country
+                    const rect = this.getBoundingClientRect();
+                    infoPanel.style.left = (rect.left + rect.width + 10) + 'px';
+                    infoPanel.style.top = rect.top + 'px';
+                    
+                    // Fill in the data
+                    countryName.textContent = countryData[countryCode].name;
+                    heritage.innerHTML = countryData[countryCode].heritage;
+                    festivals.innerHTML = countryData[countryCode].festivals;
+                    clothing.innerHTML = countryData[countryCode].clothing;
+                    food.innerHTML = countryData[countryCode].food;
+                    languages.innerHTML = countryData[countryCode].languages;
+                    
+                    // Show the panel
+                    infoPanel.style.display = 'block';
+                }
+            });
+            
+            country.addEventListener('mouseout', function() {
+                // Hide the panel when mouse leaves the country
+                // infoPanel.style.display = 'none';
+            });
+        });
+
+        // Close button functionality
+        closeBtn.addEventListener('click', function() {
+            infoPanel.style.display = 'none';
+        });
+
+        // Hide panel when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!infoPanel.contains(event.target) && !Array.from(countries).some(country => country.contains(event.target))) {
+                infoPanel.style.display = 'none';
+            }
+        });
+
+        // Menubar theme toggle script
+        function toggleTheme() {
+          const body = document.body;
+          const btn = document.getElementById('theme-toggle-btn');
+          body.classList.toggle('dark-mode');
+          if (body.classList.contains('dark-mode')) {
+            btn.textContent = '🌙';
+          } else {
+            btn.textContent = '☀️';
+          }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          const btn = document.getElementById('theme-toggle-btn');
+          if (document.body.classList.contains('dark-mode')) {
+            btn.textContent = '🌙';
+          } else {
+            btn.textContent = '☀️';
+          }
+        });
+
+        const translations = {
+          en: {
+            title: "Explore Asian Cultures",
+            subtitle: "Hover over any country to learn about its heritage, festivals, clothing, music, food, and languages!"
+          },
+          hi: {
+            title: "एशियाई संस्कृतियों का अन्वेषण करें",
+            subtitle: "किसी भी देश पर होवर करें और उसकी विरासत, त्योहार, वस्त्र, संगीत, भोजन और भाषाओं के बारे में जानें!"
+          },
+          zh: {
+            title: "探索亚洲文化",
+            subtitle: "将鼠标悬停在任何国家，了解其遗产、节日、服饰、音乐、美食和语言！"
+          },
+          ja: {
+            title: "アジアの文化を探る",
+            subtitle: "国の上にマウスを置くと、その遺産、祭り、衣装、音楽、食べ物、言語について学べます！"
+          },
+          ko: {
+            title: "아시아 문화 탐험",
+            subtitle: "국가 위에 마우스를 올려 유산, 축제, 의상, 음악, 음식, 언어를 알아보세요!"
+          },
+          th: {
+            title: "สำรวจวัฒนธรรมเอเชีย",
+            subtitle: "วางเมาส์เหนือประเทศใด ๆ เพื่อเรียนรู้เกี่ยวกับมรดก เทศกาล เสื้อผ้า ดนตรี อาหาร และภาษา!"
+          }
+        };
+
+        function updateLanguage(lang) {
+          const t = translations[lang] || translations.en;
+          document.querySelector('h1').innerText = t.title;
+          document.querySelector('header p').innerText = t.subtitle;
+          // ...rest of your code
+        }
+
+        document.getElementById('language-select').addEventListener('change', function() {
+          if (this.value === 'en') {
+            window.location.assign('map.html');
+          }
+          // If Hindi is selected, do nothing (already on Hindi page)
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+          updateLanguage(document.getElementById('language-select').value);
+        });
+    </script>
+</body>
+</html>
+

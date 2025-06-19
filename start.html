@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maison D'Asie Start</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        .main-image {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            display: block;
+        }
+        .start-btn {
+            position: absolute;
+            left: 27.5vw;
+            bottom: 16.5vh;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+        }
+        .start-btn img {
+            width: 135px;
+            height: 135px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        .start-btn:hover img {
+            transform: scale(1.08) rotate(-3deg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+        .signup-btn {
+            position: absolute;
+            left: 63.7vw;
+            bottom: 16vh;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+        }
+        .signup-btn img {
+            width: 130px;
+            height: 130px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        .signup-btn:hover img {
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+        .myanmar-btn {
+            position: absolute;
+            left: 45vw;
+            bottom: 16vh;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+        }
+        .myanmar-btn img {
+            width: 130px;
+            height: 130px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        .myanmar-btn:hover img {
+            transform: scale(1.08) rotate(-2deg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="maison-d-asie-banner.png" alt="Maison D'Asie Banner" class="main-image">
+        <a href="asia-travel.html" class="start-btn">
+            <img src="start-icon.png" alt="Start">
+        </a>
+        <a href="index.html" class="signup-btn" target="_blank">
+            <img src="signup-icon.png" alt="Sign Up">
+        </a>
+        <a href="map.html" class="myanmar-btn" target="_blank">
+            <img src="myanmar-icon.png" alt="Myanmar">
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            background: linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.25)),
+                        url('asia-bg.png') center/cover no-repeat;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 60px;
+        }
+        .profile-container {
+            background: #fdf6ee;
+            padding: 40px 32px 32px 32px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(176, 141, 87, 0.15);
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #b08d57 0%, #f5e9dc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #fff;
+            margin: 0 auto 18px auto;
+            box-shadow: 0 2px 8px rgba(176, 141, 87, 0.10);
+        }
+        h2 {
+            margin: 0 0 18px 0;
+            color: #7c5a2b;
+            font-size: 1.7rem;
+        }
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .profile-form label {
+            text-align: left;
+            color: #a67c52;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .profile-form input {
+            padding: 10px 12px;
+            border: 1px solid #e0c9a6;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #f9f5ef;
+            transition: border 0.2s;
+        }
+        .profile-form input:focus {
+            border: 1.5px solid #b08d57;
+            outline: none;
+        }
+        .profile-btn {
+            margin-top: 10px;
+            background: linear-gradient(90deg, #b08d57 0%, #f5e9dc 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 0;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(176, 141, 87, 0.10);
+            transition: background 0.2s;
+        }
+        .profile-btn:hover {
+            background: linear-gradient(90deg, #7c5a2b 0%, #e0c9a6 100%);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e3b2c;
+            padding: 12px 20px;
+            color: #f5f0df;
+            margin-bottom: 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar a {
+            color: #f5f0df;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #ffe2b8;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid #f5f0df;
+            color: #f5f0df;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background-color: #774d3a;
+        }
+        select.language {
+            background: #5e3b2c;
+            color: #f5f0df;
+            border: 1px solid #f5f0df;
+            border-radius: 5px;
+            padding: 5px;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="start.html">Home</a>
+    <a href="map.html">Explore</a>
+    <a href="asia-travel.html">Quest</a>
+    <a href="profile.html">Profile</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+    <select class="language" id="language-select" title="Select language">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+    </select>
+  </div>
+</nav>
+    <div class="profile-container">
+        <div class="profile-avatar">👤</div>
+        <h2>User Profile</h2>
+        <form class="profile-form">
+            <div>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required disabled>
+            </div>
+            <div>
+                <label for="email">Email ID</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required disabled>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required disabled>
+            </div>
+            <button type="submit" class="profile-btn" id="save-btn" disabled>Save Profile</button>
+        </form>
+        <button id="edit-btn" style="margin-top:15px;">Edit</button>
+        <button id="logout-btn" style="margin-top:15px; margin-left:10px; background:#e74c3c; color:white; border:none; padding:10px 18px; border-radius:6px; cursor:pointer;">Log Out</button>
+        <div id="visited-places-section" style="margin-top:30px;text-align:left;">
+          <h3>Places Visited</h3>
+          <ul id="visited-places-list" style="padding-left:20px;"></ul>
+        </div>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const profile = JSON.parse(localStorage.getItem('userProfile'));
+  const nameInput = document.getElementById('name');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const saveBtn = document.getElementById('save-btn');
+  const editBtn = document.getElementById('edit-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  if (profile) {
+    nameInput.value = profile.name || '';
+    emailInput.value = profile.email || '';
+    passwordInput.value = profile.password || '';
+    // Set avatar to first letter of name
+    if (profile.name && profile.name.length > 0) {
+      document.querySelector('.profile-avatar').textContent = profile.name[0].toUpperCase();
+    }
+    // Show visited places
+    const key = 'visitedPlaces_' + profile.email;
+    const visited = JSON.parse(localStorage.getItem(key)) || [];
+    const list = document.getElementById('visited-places-list');
+    if (visited.length > 0) {
+      list.innerHTML = visited.map(place => `<li>${place}</li>`).join('');
+    } else {
+      list.innerHTML = '<li>No places visited yet.</li>';
+    }
+  }
+
+  // Edit button logic
+  editBtn.addEventListener('click', function() {
+    nameInput.disabled = false;
+    emailInput.disabled = false;
+    passwordInput.disabled = false;
+    saveBtn.disabled = false;
+    nameInput.focus();
+  });
+
+  // Save changes on submit
+  document.querySelector('.profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = nameInput.value;
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    localStorage.setItem('userProfile', JSON.stringify({ name, email, password }));
+    alert('Profile updated!');
+    nameInput.disabled = true;
+    emailInput.disabled = true;
+    passwordInput.disabled = true;
+    saveBtn.disabled = true;
+    // Update avatar
+    if (name && name.length > 0) {
+      document.querySelector('.profile-avatar').textContent = name[0].toUpperCase();
+    }
+  });
+
+  // Logout button logic
+  logoutBtn.addEventListener('click', function() {
+    localStorage.removeItem('userProfile');
+    window.location.assign('index.html');
+  });
+});
+</script>
+</body>
+</html>

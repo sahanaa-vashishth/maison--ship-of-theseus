@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asian Voyage - Signup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Karma&display=swap" rel="stylesheet">
+  <style>
+    .top-logo {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  height: 50px; /* adjust size as needed */
+  z-index: 999;
+  transition: transform 0.3s ease;
+}
+
+.top-logo:hover {
+  transform: scale(1.05) rotate(1deg);
+}
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Karma', serif;
+      background: linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.25)),
+                  url('signup-bg.png') center/cover no-repeat;
+      min-height: 100vh;
+      cursor: url('https://cur.cursors-4u.net/symbols/sym-1/sym35.ani'), auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .signup-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #3e4c3f;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #c0c0c0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6b9c8f;
+      box-shadow: 0 0 5px #c3e2d2;
+    }
+
+    button {
+      background-color: #e4b47f;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #c58c52;
+    }
+
+    @media screen and (max-width: 480px) {
+      .signup-box {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <img src="logo.png" class="top-logo" alt="Asian Voyage Logo" />
+  <div class="signup-box">
+    <h2>Join the Voyage </h2>
+    <form>
+      <input type="text" placeholder="Full Name" required />
+      <input type="email" placeholder="Email Address" required />
+      <input type="password" placeholder="Create Password" required />
+      <button type="submit">Sign Up</button>
+    </form>
+    <nav style="display:none"></nav>
+  </div>
+  <script>
+  document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = this.querySelector('input[type="text"]').value;
+    const email = this.querySelector('input[type="email"]').value;
+    const password = this.querySelector('input[type="password"]').value;
+    localStorage.setItem('userProfile', JSON.stringify({ name, email, password }));
+    window.location.assign('start.html');
+  });
+  </script>
+</body>
+</html>

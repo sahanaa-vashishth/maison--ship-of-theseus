@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>एशिया विरासत एवं संस्कृति खोज</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('asia-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            position: relative;
+            z-index: 1;
+            margin-top: 20vh;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+        .options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .option-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+        }
+        .option-card h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        #map-container {
+            position: relative;
+            height: 500px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #map {
+            height: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .back-btn {
+            background: #95a5a6;
+        }
+        .start-btn {
+            background: #27ae60;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .start-btn:hover {
+            background: #219653;
+        }
+        .share-btn {
+            background: #3b5998;
+            margin-bottom: 20px;
+        }
+        .share-btn:hover {
+            background: #2d4373;
+        }
+        .route-path {
+            stroke-width: 4;
+            fill: none;
+            stroke-linejoin: round;
+        }
+        .heritage-route {
+            stroke: #e84393;
+        }
+        .temple-route {
+            stroke: #27ae60;
+        }
+        .festival-route {
+            stroke: #e67e22;
+        }
+        .location-marker {
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .journey-page {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .destination-card {
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .destination-card:hover {
+            transform: translateX(5px);
+            background: #e8f4f8;
+        }
+        .street-view-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .street-view-btn:hover {
+            background: #d35400;
+        }
+
+        /* पासपोर्ट बुक स्टाइल */
+        #passport-container {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+            perspective: 1000px;
+        }
+        #passport-icon {
+            width: 70px;
+            height: 95px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        #passport-icon:hover {
+            transform: rotateY(10deg);
+        }
+        .passport-cover {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            border-radius: 5px 15px 15px 5px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid gold;
+        }
+        .passport-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .passport-emblem {
+            font-size: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .passport-cover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/rice-paper.png');
+            opacity: 0.1;
+        }
+
+        /* पासपोर्ट मोडल */
+        #passport-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #passport-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .passport-book {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: #f9f3e6;
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg);
+            transition: transform 1s;
+            position: relative;
+        }
+        .passport-book.flipped {
+            transform: rotateY(180deg);
+        }
+        .passport-page {
+            width: 50%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            position: absolute;
+            backface-visibility: hidden;
+            overflow-y: auto;
+        }
+        .left-page {
+            left: 0;
+            background: linear-gradient(to right, #f9f3e6, #f0e6cc);
+            border-radius: 10px 0 0 10px;
+        }
+        .right-page {
+            right: 0;
+            background: linear-gradient(to left, #f9f3e6, #f0e6cc);
+            border-radius: 0 10px 10px 0;
+            transform: rotateY(180deg);
+        }
+        .passport-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4a76a;
+            padding-bottom: 10px;
+        }
+        .passport-header h2 {
+            color: #1a2980;
+            margin: 0;
+        }
+        .passport-photo {
+            width: 120px;
+            height: 150px;
+            background: #ddd;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #aaa;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        .passport-details {
+            margin-bottom: 30px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .stamps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stamp {
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .stamp:hover {
+            transform: translateY(-5px);
+        }
+        .stamp.new::after {
+            content: "NEW!";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        .stamp-emoji {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        .stamp-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .stamp-date {
+            font-size: 10px;
+            color: #777;
+        }
+        .stamp-country {
+            font-size: 10px;
+            color: #1a2980;
+            font-style: italic;
+        }
+        .passport-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #555;
+        }
+        .passport-nav {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .nav-btn {
+            background: #1a2980;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .empty-passport {
+            text-align: center;
+            padding: 40px 0;
+            color: #777;
+            font-style: italic;
+        }
+
+        /* स्टाम्प नोटिफिकेशन */
+        .stamp-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+        .stamp-notification.show {
+            transform: translateX(0);
+        }
+        .stamp-notification-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* मेन्यूबार स्टाइल */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e3b2c;
+            padding: 12px 20px;
+            color: #f5f0df;
+        }
+        .navbar a {
+            color: #f5f0df;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #ffe2b8;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid #f5f0df;
+            color: #f5f0df;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background-color: #774d3a;
+        }
+        select.language {
+            background: #5e3b2c;
+            color: #f5f0df;
+            border: 1px solid #f5f0df;
+            border-radius: 5px;
+            padding: 5px;
+            margin-left: 15px;
+        }
+        .dark-mode {
+            background-color: #2b1c17 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode .navbar {
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a,
+        .dark-mode .theme-toggle,
+        .dark-mode select.language {
+            color: #f5e9dc !important;
+            border-color: #f5e9dc !important;
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a:hover {
+            color: #ffdbb4 !important;
+        }
+        .dark-mode .container {
+            background: #444 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode header,
+        .dark-mode .option-card {
+            background: #3a241a !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode .option-card h2 {
+            color: #ffe2b8 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- मेन्यूबार -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <a href="start.html">Home</a>
+        <a href="maps-hindi.html">एक्सप्लोर</a>
+        <a href="asia-travel-hindi.html">खोज</a>
+        <a href="profile.html">प्रोफाइल</a>
+      </div>
+      <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+        <select class="language" id="language-select" title="भाषा चुनें">
+          <option value="hi">हिन्दी</option>
+          <option value="en">अंग्रे़ी</option>
+        </select>
+      </div>
+    </nav>
+
+    <!-- पासपोर्ट आइकन -->
+    <div id="passport-container">
+        <div id="passport-icon">
+            <div class="passport-cover">
+                <div class="passport-title">एशिया विरासत<br>पासपोर्ट</div>
+                <div class="passport-emblem">🌏</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- पासपोर्ट मोडल -->
+    <div id="passport-modal">
+        <div class="passport-book">
+            <button class="passport-close" id="passport-close-btn">&times;</button>
+            
+            <div class="passport-page left-page">
+                <div class="passport-header">
+                    <h2>एशिया विरासत पासपोर्ट</h2>
+                    <p>सांस्कृतिक अन्वेषण दस्तावेज़</p>
+                </div>
+                
+                <div class="passport-photo">
+                    अन्वेषक फोटो
+                </div>
+                
+                <div class="passport-details">
+                    <div class="detail-row">
+                        <div class="detail-label">नाम:</div>
+                        <div class="detail-value">सांस्कृतिक अन्वेषक</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">पासपोर्ट नं.:</div>
+                        <div class="detail-value">AH-<span id="passport-number">0001</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">राष्ट्रीयता:</div>
+                        <div class="detail-value">वैश्विक नागरिक</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">जारी तिथि:</div>
+                        <div class="detail-value" id="issue-date">आज</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">एकत्रित स्टाम्प:</div>
+                        <div class="detail-value"><span id="stamp-count">0</span> में से 15</div>
+                    </div>
+                </div>
+                
+                <div class="passport-header">
+                    <h3>यात्रा सलाह</h3>
+                </div>
+                <p style="font-size: 12px; text-align: center;">
+                    यह पासपोर्ट एशिया की सांस्कृतिक विरासत के माध्यम से आपकी यात्रा को दर्ज करता है। 
+                    मानचित्र पर स्थानों का दौरा करके स्टाम्प एकत्र करें। शुभ अन्वेषण!
+                </p>
+            </div>
+            
+            <div class="passport-page right-page">
+                <div class="passport-header">
+                    <h2>सांस्कृतिक स्टाम्प संग्रह</h2>
+                    <p>आपके द्वारा देखे गए स्थान</p>
+                </div>
+                
+                <div id="stamps-collection" class="stamps-container">
+                    <div class="empty-passport">
+                        अभी तक कोई स्टाम्प एकत्र नहीं किया गया है।<br>
+                        अपना पहला स्टाम्प प्राप्त करने के लिए स्थानों का अन्वेषण करें!
+                    </div>
+                </div>
+                
+                <div class="passport-nav">
+                    <button class="nav-btn" id="prev-page-btn" disabled>◀</button>
+                    <button class="nav-btn" id="next-page-btn" disabled>▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- स्टाम्प नोटिफिकेशन -->
+    <div class="stamp-notification" id="stamp-notification">
+        <div class="stamp-notification-emoji" id="stamp-emoji">🎉</div>
+        <div>
+            <div><strong>नया स्टाम्प अनलॉक!</strong></div>
+            <div id="stamp-location">स्थान का नाम</div>
+        </div>
+    </div>
+
+    <!-- मुख्य एप्लिकेशन सामग्री -->
+    <div class="container">
+        <!-- होम स्क्रीन -->
+        <div id="home-screen">
+            <header>
+                <h1>एशिया विरासत एवं संस्कृति खोज</h1>
+                <p>एशिया के सबसे प्रतिष्ठित सांस्कृतिक स्थलों की यात्रा पर निकलें!</p>
+            </header>
+
+            <div class="options">
+                <div class="option-card" onclick="showRoute('heritage')">
+                    <h2>🏛️ यूनेस्को विरासत यात्रा</h2>
+                    <p>एशिया की सबसे कीमती यूनेस्को विश्व धरोहर स्थलों का अन्वेषण करें।</p>
+                </div>
+                <div class="option-card" onclick="showRoute('temple')">
+                    <h2>🛕 पवित्र मंदिर एवं तीर्थ</h2>
+                    <p>एशिया के सबसे आध्यात्मिक और प्राचीन धार्मिक स्थलों की खोज करें।</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- मैप स्क्रीन -->
+        <div id="map-screen" class="hidden">
+            <button class="btn back-btn" onclick="goBack()">← विकल्पों पर वापस जाएं</button>
+            <div id="map-container">
+                <div id="map"></div>
+                <button id="start-journey-btn" class="btn start-btn hidden" onclick="startJourney()">यात्रा शुरू करें!</button>
+            </div>
+        </div>
+
+        <!-- यात्रा स्क्रीन -->
+        <div id="journey-screen" class="hidden">
+            <button class="btn back-btn" onclick="goBackToMap()">← मानचित्र पर वापस जाएं</button>
+            <div class="journey-page">
+                <h2 id="journey-title"></h2>
+                <p id="journey-description"></p>
+                <button class="btn share-btn" id="share-journey-btn">इस यात्रा को साझा करें</button>
+                <div id="destinations-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- लीफलेट JS इंटरएक्टिव मैप के लिए -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // सांस्कृतिक यात्रा डेटा
+        const journeys = {
+            heritage: {
+                title: "यूनेस्को विरासत यात्रा",
+                description: "एशिया के सबसे प्रतिष्ठित यूनेस्को विश्व धरोहर स्थलों का अन्वेषण करें जो सदियों की वास्तुकला प्रतिभा और सांस्कृतिक महत्व को दर्शाते हैं।",
+                locations: [
+                    { 
+                        name: "चीन की महान दीवार", 
+                        coords: [40.4319, 116.5704],
+                        description: "13,000 मील से अधिक लंबी दुनिया की सबसे लंबी दीवार, जिसे 2,000 साल पहले चीनी साम्राज्यों की रक्षा के लिए बनाया गया था।",
+                        streetView: "https://www.instantstreetview.com/@40.4319,116.5704,90.0z,0t,0p",
+                        country: "चीन",
+                        emoji: "🇨🇳"
+                    },
+                    { 
+                        name: "ताज महल, भारत", 
+                        coords: [27.1751, 78.0421],
+                        description: "मुगल सम्राट शाहजहाँ द्वारा अपनी पत्नी की याद में बनवाया गया एक आश्चर्यजनक सफेद संगमरमर का मकबरा।",
+                        streetView: "https://www.instantstreetview.com/@27.1751,78.0421,90.0z,0t,0p",
+                        country: "भारत",
+                        emoji: "🇮🇳"
+                    },
+                    { 
+                        name: "अंगकोर वाट, कंबोडिया", 
+                        coords: [13.4125, 103.8660],
+                        description: "दुनिया का सबसे बड़ा धार्मिक स्मारक, जिसे मूल रूप से 12वीं शताब्दी में हिंदू मंदिर के रूप में बनाया गया था।",
+                        streetView: "https://www.instantstreetview.com/@13.4125,103.8660,90.0z,0t,0p",
+                        country: "कंबोडिया",
+                        emoji: "🇰🇭"
+                    },
+                    { 
+                        name: "बोरोबुदुर, इंडोनेशिया", 
+                        coords: [-7.6079, 110.2038],
+                        description: "दुनिया का सबसे बड़ा बौद्ध मंदिर, जिसमें 500 से अधिक बुद्ध प्रतिमाएँ हैं।",
+                        streetView: "https://www.instantstreetview.com/@-7.6079,110.2038,90.0z,0t,0p",
+                        country: "इंडोनेशिया",
+                        emoji: "🇮🇩"
+                    },
+                    { 
+                        name: "क्योटो मंदिर, जापान", 
+                        coords: [35.0116, 135.7681],
+                        description: "17 यूनेस्को स्थलों का घर, जिसमें किंकाकु-जी (गोल्डन पैवेलियन) और फुशिमी इनारी श्राइन शामिल हैं।",
+                        streetView: "https://www.instantstreetview.com/@35.0116,135.7681,90.0z,0t,0p",
+                        country: "जापान",
+                        emoji: "🇯🇵"
+                    }
+                ],
+                color: "e84393"
+            },
+            temple: {
+                title: "पवित्र मंदिर एवं तीर्थ",
+                description: "एशिया के सबसे पूजनीय आध्यात्मिक स्थलों का अन्वेषण करें, प्राचीन बौद्ध मंदिरों से लेकर भव्य हिंदू मंदिरों तक।",
+                locations: [
+                    { 
+                        name: "पोटाला पैलेस, तिब्बत", 
+                        coords: [29.6578, 91.1169],
+                        description: "दलाई लामा का पूर्व शीतकालीन महल, तिब्बती वास्तुकला का एक उत्कृष्ट नमूना।",
+                        streetView: "https://www.instantstreetview.com/@29.6578,91.1169,90.0z,0t,0p",
+                        country: "तिब्बत",
+                        emoji: "🏔️"
+                    },
+                    { 
+                        name: "मीनाक्षी मंदिर, भारत", 
+                        coords: [9.9196, 78.1193],
+                        description: "एक ऐतिहासिक हिंदू मंदिर जिसमें रंगीन मूर्तियों से सजे ऊंचे गोपुरम (प्रवेश द्वार) हैं।",
+                        streetView: "https://www.instantstreetview.com/@9.9196,78.1193,90.0z,0t,0p",
+                        country: "भारत",
+                        emoji: "🇮🇳"
+                    },
+                    { 
+                        name: "श्वेडागोन पगोडा, म्यांमार", 
+                        coords: [16.7983, 96.1496],
+                        description: "2,600 साल पुराना स्वर्ण स्तूप, म्यांमार में सबसे पवित्र बौद्ध स्थल।",
+                        streetView: "https://www.instantstreetview.com/@16.7983,96.1496,90.0z,0t,0p",
+                        country: "म्यांमार",
+                        emoji: "🇲🇲"
+                    },
+                    { 
+                        name: "कियोमिज़ु-डेरा, जापान", 
+                        coords: [34.9949, 135.7850],
+                        description: "क्योटो में एक लकड़ी का मंदिर, जो चेरी ब्लॉसम के ऊपर अपने बरामदे के लिए प्रसिद्ध है।",
+                        streetView: "https://www.instantstreetview.com/@34.9949,135.7850,90.0z,0t,0p",
+                        country: "जापान",
+                        emoji: "🇯🇵"
+                    },
+                    { 
+                        name: "वाट फो, थाईलैंड", 
+                        coords: [13.7465, 100.4930],
+                        description: "विशाल पड़े हुए बुद्ध और थाई मसाज का जन्मस्थान।",
+                        streetView: "https://www.instantstreetview.com/@13.7465,100.4930,90.0z,0t,0p",
+                        country: "थाईलैंड",
+                        emoji: "🇹🇭"
+                    }
+                ],
+                color: "27ae60"
+            }
+        };
+
+        // Remove all passport-related JS logic from here (handled by passport.js)
+
+        document.getElementById('language-select').addEventListener('change', function() {
+            if (this.value === 'en') {
+                window.location.assign('asia-travel.html');
+            }
+            // If Hindi is selected, do nothing (already on Hindi page)
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-toggle-btn');
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                btn.textContent = '🌙';
+            } else {
+                btn.textContent = '☀️';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (document.body.classList.contains('dark-mode')) {
+                btn.textContent = '🌙';
+            } else {
+                btn.textContent = '☀️';
+            }
+        });
+    </script>
+    <script src="passport.js"></script>
+</body>
+</html>

@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asia Heritage & Culture Quest</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('asia-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            overflow-x: hidden;
+            padding-top: 60px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            position: relative;
+            z-index: 1;
+            margin-top: 20vh;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+        .options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .option-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+        }
+        .option-card h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        #map-container {
+            position: relative;
+            height: 500px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #map {
+            height: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .back-btn {
+            background: #95a5a6;
+        }
+        .start-btn {
+            background: #27ae60;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .start-btn:hover {
+            background: #219653;
+        }
+        .share-btn {
+            background: #3b5998;
+            margin-bottom: 20px;
+        }
+        .share-btn:hover {
+            background: #2d4373;
+        }
+        .route-path {
+            stroke-width: 4;
+            fill: none;
+            stroke-linejoin: round;
+        }
+        .heritage-route {
+            stroke: #e84393;
+        }
+        .temple-route {
+            stroke: #27ae60;
+        }
+        .festival-route {
+            stroke: #e67e22;
+        }
+        .location-marker {
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .journey-page {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .destination-card {
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .destination-card:hover {
+            transform: translateX(5px);
+            background: #e8f4f8;
+        }
+        .street-view-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .street-view-btn:hover {
+            background: #d35400;
+        }
+
+        /* Passport Book Styles */
+        #passport-container {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+            perspective: 1000px;
+        }
+        #passport-icon {
+            width: 70px;
+            height: 95px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        #passport-icon:hover {
+            transform: rotateY(10deg);
+        }
+        .passport-cover {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            border-radius: 5px 15px 15px 5px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid gold;
+        }
+        .passport-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .passport-emblem {
+            font-size: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .passport-cover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/rice-paper.png');
+            opacity: 0.1;
+        }
+
+        /* Passport Modal */
+        #passport-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #passport-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .passport-book {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: #f9f3e6;
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg);
+            transition: transform 1s;
+            position: relative;
+        }
+        .passport-book.flipped {
+            transform: rotateY(180deg);
+        }
+        .passport-page {
+            width: 50%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            position: absolute;
+            backface-visibility: hidden;
+            overflow-y: auto;
+        }
+        .left-page {
+            left: 0;
+            background: linear-gradient(to right, #f9f3e6, #f0e6cc);
+            border-radius: 10px 0 0 10px;
+        }
+        .right-page {
+            right: 0;
+            background: linear-gradient(to left, #f9f3e6, #f0e6cc);
+            border-radius: 0 10px 10px 0;
+            transform: rotateY(180deg);
+        }
+        .passport-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4a76a;
+            padding-bottom: 10px;
+        }
+        .passport-header h2 {
+            color: #1a2980;
+            margin: 0;
+        }
+        .passport-photo {
+            width: 120px;
+            height: 150px;
+            background: #ddd;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #aaa;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        .passport-details {
+            margin-bottom: 30px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .stamps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stamp {
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .stamp:hover {
+            transform: translateY(-5px);
+        }
+        .stamp.new::after {
+            content: "NEW!";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        .stamp-emoji {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        .stamp-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .stamp-date {
+            font-size: 10px;
+            color: #777;
+        }
+        .stamp-country {
+            font-size: 10px;
+            color: #1a2980;
+            font-style: italic;
+        }
+        .passport-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #555;
+        }
+        .passport-nav {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .nav-btn {
+            background: #1a2980;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .empty-passport {
+            text-align: center;
+            padding: 40px 0;
+            color: #777;
+            font-style: italic;
+        }
+
+        /* Stamp notification */
+        .stamp-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+        .stamp-notification.show {
+            transform: translateX(0);
+        }
+        .stamp-notification-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* Menubar styles from menubar[1].html */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e3b2c;
+            padding: 12px 20px;
+            color: #f5f0df;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar a {
+            color: #f5f0df;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #ffe2b8;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid #f5f0df;
+            color: #f5f0df;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .theme-toggle:hover {
+            background-color: #774d3a;
+        }
+        select.language {
+            background: #5e3b2c;
+            color: #f5f0df;
+            border: 1px solid #f5f0df;
+            border-radius: 5px;
+            padding: 5px;
+            margin-left: 15px;
+        }
+        .dark-mode {
+            background-color: #2b1c17 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode .navbar {
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a,
+        .dark-mode .theme-toggle,
+        .dark-mode select.language {
+            color: #f5e9dc !important;
+            border-color: #f5e9dc !important;
+            background-color: #3a241a !important;
+        }
+        .dark-mode .navbar a:hover {
+            color: #ffdbb4 !important;
+        }
+        .dark-mode .container {
+            background: #444 !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode header,
+        .dark-mode .option-card {
+            background: #3a241a !important;
+            color: #f5e9dc !important;
+        }
+        .dark-mode .option-card h2 {
+            color: #ffe2b8 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menubar from menubar[1].html -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <a href="start.html">Home</a>
+        <a href="map.html">Explore</a>
+        <a href="asia-travel.html">Quest</a>
+        <a href="profile.html">Profile</a>
+      </div>
+      <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+        <select class="language" id="language-select" title="Select language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+        </select>
+      </div>
+    </nav>
+
+    <!-- Passport Icon -->
+    <div id="passport-container">
+        <div id="passport-icon">
+            <div class="passport-cover">
+                <div class="passport-title">ASIA HERITAGE<br>PASSPORT</div>
+                <div class="passport-emblem">🌏</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passport Modal -->
+    <div id="passport-modal">
+        <div class="passport-book">
+            <button class="passport-close" id="passport-close-btn">&times;</button>
+            
+            <div class="passport-page left-page">
+                <div class="passport-header">
+                    <h2>ASIA HERITAGE PASSPORT</h2>
+                    <p>Cultural Exploration Document</p>
+                </div>
+                
+                <div class="passport-photo">
+                    Explorer Photo
+                </div>
+                
+                <div class="passport-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value"><input type="text" id="passport-name" value="Cultural Explorer" style="width: 90%; border-radius: 6px; border: 1px solid #ccc; padding: 2px 6px;" placeholder="Enter your name" title="Name"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Passport No.:</div>
+                        <div class="detail-value">AH-<span id="passport-number">0001</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Nationality:</div>
+                        <div class="detail-value"><input type="text" id="passport-nationality" value="Global Citizen" style="width: 90%; border-radius: 6px; border: 1px solid #ccc; padding: 2px 6px;" placeholder="Enter your nationality" title="Nationality"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Issued On:</div>
+                        <div class="detail-value" id="issue-date">Today</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Stamps Collected:</div>
+                        <div class="detail-value"><span id="stamp-count">0</span> of 15</div>
+                    </div>
+                    <div style="text-align:center; margin-top:10px;">
+                        <button id="save-passport-info" style="padding:4px 16px; border-radius:6px; background:#3498db; color:white; border:none; cursor:pointer;">Save</button>
+                    </div>
+                </div>
+                
+                <div class="passport-header">
+                    <h3>Travel Advisory</h3>
+                </div>
+                <p style="font-size: 12px; text-align: center;">
+                    This passport documents your journey through Asia's cultural heritage. 
+                    Collect stamps by visiting locations on the map. Happy exploring!
+                </p>
+            </div>
+            
+            <div class="passport-page right-page">
+                <div class="passport-header">
+                    <h2>Cultural Stamps Collection</h2>
+                    <p>Your visited locations</p>
+                </div>
+                
+                <div id="stamps-collection" class="stamps-container">
+                    <div class="empty-passport">
+                        No stamps collected yet.<br>
+                        Explore locations to collect your first stamp!
+                    </div>
+                </div>
+                
+                <div class="passport-nav">
+                    <button class="nav-btn" id="prev-page-btn" disabled>◀</button>
+                    <button class="nav-btn" id="next-page-btn" disabled>▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stamp Notification -->
+    <div class="stamp-notification" id="stamp-notification">
+        <div class="stamp-notification-emoji" id="stamp-emoji">🎉</div>
+        <div>
+            <div><strong>New Stamp Unlocked!</strong></div>
+            <div id="stamp-location">Location Name</div>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="home-screen">
+            <header>
+                <h1>Asia Heritage & Culture Quest</h1>
+                <p>Embark on a journey through Asia's most iconic cultural landmarks!</p>
+            </header>
+
+            <div class="options">
+                <div class="option-card" onclick="showRoute('heritage')">
+                    <h2>🏛️ UNESCO Heritage Trail</h2>
+                    <p>Explore Asia's most treasured UNESCO World Heritage Sites.</p>
+                </div>
+                <div class="option-card" onclick="showRoute('temple')">
+                    <h2>🛕 Sacred Temples & Shrines</h2>
+                    <p>Discover Asia's most spiritual and ancient religious sites.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Screen -->
+        <div id="map-screen" class="hidden">
+            <button class="btn back-btn" onclick="goBack()">← Back to Options</button>
+            <div id="map-container">
+                <div id="map"></div>
+                <button id="start-journey-btn" class="btn start-btn hidden" onclick="startJourney()">Start Journey!</button>
+            </div>
+        </div>
+
+        <!-- Journey Screen -->
+        <div id="journey-screen" class="hidden">
+            <button class="btn back-btn" onclick="goBackToMap()">← Back to Map</button>
+            <div class="journey-page">
+                <h2 id="journey-title"></h2>
+                <p id="journey-description"></p>
+                <button class="btn share-btn" id="share-journey-btn">Share This Journey</button>
+                <div id="destinations-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS for interactive map -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // Cultural journey data with InstantStreetView links
+        const journeys = {
+            heritage: {
+                title: "UNESCO Heritage Trail",
+                description: "Explore Asia's most iconic UNESCO World Heritage Sites that showcase centuries of architectural brilliance and cultural significance.",
+                locations: [
+                    { 
+                        name: "Great Wall of China", 
+                        coords: [40.4319, 116.5704],
+                        description: "The world's longest wall stretching over 13,000 miles, built over 2,000 years ago to protect Chinese empires.",
+                        streetView: "https://www.instantstreetview.com/@40.4319,116.5704,90.0z,0t,0p",
+                        country: "china",
+                        emoji: "🇨🇳"
+                    },
+                    { 
+                        name: "Taj Mahal, India", 
+                        coords: [27.1751, 78.0421],
+                        description: "A stunning white marble mausoleum built by Mughal Emperor Shah Jahan in memory of his wife.",
+                        streetView: "https://www.instantstreetview.com/@27.1751,78.0421,90.0z,0t,0p",
+                        country: "india",
+                        emoji: "🇮🇳"
+                    },
+                    { 
+                        name: "Angkor Wat, Cambodia", 
+                        coords: [13.4125, 103.8660],
+                        description: "The world's largest religious monument, originally built as a Hindu temple in the 12th century.",
+                        streetView: "https://www.instantstreetview.com/@13.4125,103.8660,90.0z,0t,0p",
+                        country: "cambodia",
+                        emoji: "🇰🇭"
+                    },
+                    { 
+                        name: "Borobudur, Indonesia", 
+                        coords: [-7.6079, 110.2038],
+                        description: "The largest Buddhist temple in the world, featuring over 500 Buddha statues.",
+                        streetView: "https://www.instantstreetview.com/@-7.6079,110.2038,90.0z,0t,0p",
+                        country: "indonesia",
+                        emoji: "🇮🇩"
+                    },
+                    { 
+                        name: "Kyoto Temples, Japan", 
+                        coords: [35.0116, 135.7681],
+                        description: "Home to 17 UNESCO sites, including Kinkaku-ji (Golden Pavilion) and Fushimi Inari Shrine.",
+                        streetView: "https://www.instantstreetview.com/@35.0116,135.7681,90.0z,0t,0p",
+                        country: "japan",
+                        emoji: "🇯🇵"
+                    }
+                ],
+                color: "e84393"
+            },
+            temple: {
+                title: "Sacred Temples & Shrines",
+                description: "Explore Asia's most revered spiritual sites, from ancient Buddhist temples to majestic Hindu shrines.",
+                locations: [
+                    { 
+                        name: "Potala Palace, Tibet", 
+                        coords: [29.6578, 91.1169],
+                        description: "The former winter palace of the Dalai Lama, a masterpiece of Tibetan architecture.",
+                        streetView: "https://www.instantstreetview.com/@29.6578,91.1169,90.0z,0t,0p",
+                        country: "tibet",
+                        emoji: "🏔️"
+                    },
+                    { 
+                        name: "Meenakshi Temple, India", 
+                        coords: [9.9196, 78.1193],
+                        description: "A historic Hindu temple with towering gopurams (gateways) covered in colorful sculptures.",
+                        streetView: "https://www.instantstreetview.com/@9.9196,78.1193,90.0z,0t,0p",
+                        country: "india",
+                        emoji: "🇮🇳"
+                    },
+                    { 
+                        name: "Shwedagon Pagoda, Myanmar", 
+                        coords: [16.7983, 96.1496],
+                        description: "A 2,600-year-old golden stupa, the most sacred Buddhist site in Myanmar.",
+                        streetView: "https://www.instantstreetview.com/@16.7983,96.1496,90.0z,0t,0p",
+                        country: "myanmar",
+                        emoji: "🇲🇲"
+                    },
+                    { 
+                        name: "Kiyomizu-dera, Japan", 
+                        coords: [34.9949, 135.7850],
+                        description: "A wooden temple in Kyoto, famous for its veranda overlooking cherry blossoms.",
+                        streetView: "https://www.instantstreetview.com/@34.9949,135.7850,90.0z,0t,0p",
+                        country: "japan",
+                        emoji: "🇯🇵"
+                    },
+                    { 
+                        name: "Wat Pho, Thailand", 
+                        coords: [13.7465, 100.4930],
+                        description: "Home to the giant reclining Buddha and the birthplace of Thai massage.",
+                        streetView: "https://www.instantstreetview.com/@13.7465,100.4930,90.0z,0t,0p",
+                        country: "thailand",
+                        emoji: "🇹🇭"
+                    }
+                ],
+                color: "27ae60"
+            },
+            festival: {
+                title: "Cultural Festivals of Asia",
+                description: "Immerse yourself in Asia's most vibrant festivals, where tradition comes alive through dance, music, and celebration.",
+                locations: [
+                    { 
+                        name: "Diwali, India", 
+                        coords: [28.6139, 77.2090],
+                        description: "The Festival of Lights, celebrated with lamps, fireworks, and sweets across India.",
+                        streetView: "https://www.instantstreetview.com/@28.6139,77.2090,90.0z,0t,0p",
+                        country: "india",
+                        emoji: "🇮🇳"
+                    },
+                    { 
+                        name: "Songkran, Thailand", 
+                        coords: [13.7563, 100.5018],
+                        description: "Thai New Year's water festival, where streets turn into massive water fights.",
+                        streetView: "https://www.instantstreetview.com/@13.7563,100.5018,90.0z,0t,0p",
+                        country: "thailand",
+                        emoji: "🇹🇭"
+                    },
+                    { 
+                        name: "Hanami, Japan", 
+                        coords: [35.6762, 139.6503],
+                        description: "Cherry blossom viewing parties under blooming sakura trees in spring.",
+                        streetView: "https://www.instantstreetview.com/@35.6762,139.6503,90.0z,0t,0p",
+                        country: "japan",
+                        emoji: "🇯🇵"
+                    },
+                    { 
+                        name: "Baliem Valley Festival, Indonesia", 
+                        coords: [-3.8480, 138.9480],
+                        description: "A tribal festival in Papua featuring traditional warfare simulations and dances.",
+                        streetView: "https://www.instantstreetview.com/@-3.8480,138.9480,90.0z,0t,0p",
+                        country: "indonesia",
+                        emoji: "🇮🇩"
+                    },
+                    { 
+                        name: "Loy Krathong, Thailand", 
+                        coords: [18.7061, 98.9817],
+                        description: "The lantern festival where people float krathongs (decorated baskets) on rivers.",
+                        streetView: "https://www.instantstreetview.com/@18.7061,98.9817,90.0z,0t,0p",
+                        country: "thailand",
+                        emoji: "🇹🇭"
+                    }
+                ],
+                color: "e67e22"
+            }
+        };
+
+        // Passport Data
+        const passportData = {
+            stamps: [],
+            unlockedLocations: new Set(),
+            passportNumber: Math.floor(1000 + Math.random() * 9000),
+            issueDate: new Date().toLocaleDateString()
+        };
+
+        // DOM Elements
+        const passportIcon = document.getElementById('passport-icon');
+        const passportModal = document.getElementById('passport-modal');
+        const passportCloseBtn = document.getElementById('passport-close-btn');
+        const stampsCollection = document.getElementById('stamps-collection');
+        const stampCount = document.getElementById('stamp-count');
+        const passportNumber = document.getElementById('passport-number');
+        const issueDate = document.getElementById('issue-date');
+        const stampNotification = document.getElementById('stamp-notification');
+        const stampEmoji = document.getElementById('stamp-emoji');
+        const stampLocation = document.getElementById('stamp-location');
+        const shareJourneyBtn = document.getElementById('share-journey-btn');
+
+        // Initialize Passport
+        function initPassport() {
+            // Load saved data from localStorage
+            const savedPassport = localStorage.getItem('asiaHeritagePassport');
+            if (savedPassport) {
+                const parsed = JSON.parse(savedPassport);
+                passportData.stamps = parsed.stamps || [];
+                passportData.unlockedLocations = new Set(parsed.unlockedLocations || []);
+                passportData.passportNumber = parsed.passportNumber || passportData.passportNumber;
+            }
+
+            // Set passport info
+            passportNumber.textContent = passportData.passportNumber;
+            issueDate.textContent = passportData.issueDate;
+            updateStampCount();
+
+            // Add event listeners
+            passportIcon.addEventListener('click', openPassport);
+            passportCloseBtn.addEventListener('click', closePassport);
+            shareJourneyBtn.addEventListener('click', shareJourney);
+
+            // Update stamps display
+            updateStampsDisplay();
+        }
+
+        // Get user profile from localStorage
+        function getCurrentUser() {
+            const profile = JSON.parse(localStorage.getItem('userProfile'));
+            return profile;
+        }
+
+        // Save visited place for the current user
+        function saveVisitedPlace(placeName) {
+            const user = getCurrentUser();
+            if (!user || !user.email) return;
+            const key = 'visitedPlaces_' + user.email;
+            let visited = JSON.parse(localStorage.getItem(key)) || [];
+            if (!visited.includes(placeName)) {
+                visited.push(placeName);
+                localStorage.setItem(key, JSON.stringify(visited));
+            }
+        }
+
+        // Get visited places for the current user
+        function getVisitedPlaces() {
+            const user = getCurrentUser();
+            if (!user || !user.email) return [];
+            const key = 'visitedPlaces_' + user.email;
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        // Modify addStamp to also save the visited place
+        function addStamp(location) {
+            // Check if location is already unlocked
+            if (passportData.unlockedLocations.has(location.name)) return;
+
+            // Add to unlocked locations
+            passportData.unlockedLocations.add(location.name);
+
+            // Create new stamp
+            const newStamp = {
+                name: location.name,
+                country: location.country,
+                emoji: location.emoji,
+                date: new Date().toLocaleDateString(),
+                isNew: true
+            };
+
+            // Add to stamps array
+            passportData.stamps.unshift(newStamp);
+
+            // Update UI
+            updateStampCount();
+            updateStampsDisplay();
+
+            // Save to localStorage
+            savePassport();
+
+            // Save to visited places for user
+            saveVisitedPlace(location.name);
+
+            // Show notification
+            showStampNotification(newStamp);
+        }
+
+        // Share Journey Functionality
+        function shareJourney() {
+            const route = journeys[currentRoute];
+            const collectedStamps = passportData.stamps.filter(stamp => 
+                route.locations.some(loc => loc.name === stamp.name)
+            ).length;
+            const totalStamps = route.locations.length;
+            
+            const shareText = `I'm exploring ${route.title} on Asia Heritage & Culture Quest! 🏛️🌏 
+            I've collected ${collectedStamps} of ${totalStamps} stamps so far. 
+            Join me on this cultural journey!`;
+            
+            const shareUrl = window.location.href;
+            
+            if (navigator.share) {
+                // Use Web Share API if available (mobile devices)
+                navigator.share({
+                    title: 'Asia Heritage & Culture Quest',
+                    text: shareText,
+                    url: shareUrl
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    fallbackShare(shareText, shareUrl);
+                });
+            } else {
+                // Fallback for desktop browsers
+                fallbackShare(shareText, shareUrl);
+            }
+        }
+
+        function fallbackShare(text, url) {
+            // Create a temporary element for copying
+            const tempInput = document.createElement('input');
+            tempInput.value = `${text} ${url}`;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            // Show feedback
+            alert('Journey details copied to clipboard! You can now paste it anywhere to share.');
+            
+            // Alternatively, you could open a popup with social sharing options
+            // window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        // Show stamp notification
+        function showStampNotification(stamp) {
+            stampEmoji.textContent = stamp.emoji;
+            stampLocation.textContent = stamp.name;
+            
+            stampNotification.classList.add('show');
+            
+            setTimeout(() => {
+                stampNotification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Update stamp count display
+        function updateStampCount() {
+            stampCount.textContent = passportData.stamps.length;
+        }
+
+        // Update stamps display
+        function updateStampsDisplay() {
+            if (passportData.stamps.length === 0) {
+                stampsCollection.innerHTML = `
+                    <div class="empty-passport">
+                        No stamps collected yet.<br>
+                        Explore locations to collect your first stamp!
+                    </div>
+                `;
+                return;
+            }
+
+            stampsCollection.innerHTML = passportData.stamps.map(stamp => `
+                <div class="stamp ${stamp.isNew ? 'new' : ''}">
+                    <div class="stamp-emoji">${stamp.emoji}</div>
+                    <div class="stamp-name">${stamp.name}</div>
+                    <div class="stamp-country">${stamp.country.toUpperCase()}</div>
+                    <div class="stamp-date">${stamp.date}</div>
+                </div>
+            `).join('');
+
+            // Add click event to stamps to mark as seen
+            document.querySelectorAll('.stamp').forEach(stampEl => {
+                stampEl.addEventListener('click', function() {
+                    const stampName = this.querySelector('.stamp-name').textContent;
+                    const stamp = passportData.stamps.find(s => s.name === stampName);
+                    if (stamp) {
+                        stamp.isNew = false;
+                        savePassport();
+                        updateStampsDisplay();
+                    }
+                });
+            });
+        }
+
+        // Set passport name from user profile
+        function setPassportNameFromProfile() {
+            const profile = JSON.parse(localStorage.getItem('userProfile'));
+            if (profile && profile.name) {
+                const nameInput = document.getElementById('passport-name');
+                if (nameInput) nameInput.value = profile.name;
+            }
+        }
+
+        // Save passport name to user profile
+        function savePassportNameToProfile() {
+            const nameInput = document.getElementById('passport-name');
+            if (!nameInput) return;
+            const profile = JSON.parse(localStorage.getItem('userProfile'));
+            if (profile) {
+                profile.name = nameInput.value;
+                localStorage.setItem('userProfile', JSON.stringify(profile));
+            }
+        }
+
+        // Show visited places in passport modal (as a list)
+        function showVisitedPlacesInPassport() {
+            const visited = getVisitedPlaces();
+            const container = document.querySelector('.passport-details');
+            let visitedHtml = '';
+            if (visited.length > 0) {
+                visitedHtml = '<div class="detail-row visited-row"><div class="detail-label">Visited:</div><div class="detail-value"><ul style="margin:0;padding-left:18px;">' + visited.map(place => `<li>${place}</li>`).join('') + '</ul></div></div>';
+            } else {
+                visitedHtml = '<div class="detail-row visited-row"><div class="detail-label">Visited:</div><div class="detail-value">None yet</div></div>';
+            }
+            // Remove old visited row if exists
+            const old = container.querySelector('.detail-row.visited-row');
+            if (old) old.remove();
+            // Insert before the last row (stamps collected)
+            const rows = container.querySelectorAll('.detail-row');
+            if (rows.length > 0) {
+                const lastRow = rows[rows.length - 2];
+                const div = document.createElement('div');
+                div.className = 'detail-row visited-row';
+                div.innerHTML = visitedHtml;
+                lastRow.parentNode.insertBefore(div, lastRow.nextSibling);
+            }
+        }
+
+        // Show visited places and set name when passport is opened
+        function openPassport() {
+            passportModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            setPassportNameFromProfile();
+            showVisitedPlacesInPassport();
+        }
+
+        // Close passport
+        function closePassport() {
+            passportModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // Mark all stamps as not new after viewing
+            passportData.stamps.forEach(stamp => stamp.isNew = false);
+            savePassport();
+            updateStampsDisplay();
+        }
+
+        // Save passport to localStorage
+        function savePassport() {
+            localStorage.setItem('asiaHeritagePassport', JSON.stringify({
+                stamps: passportData.stamps,
+                unlockedLocations: Array.from(passportData.unlockedLocations),
+                passportNumber: passportData.passportNumber
+            }));
+        }
+
+        // Main App Functions
+        let map;
+        let routePolyline;
+        let currentRoute;
+
+        function showRoute(routeType) {
+            currentRoute = routeType;
+            
+            // Hide home and show map
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('map-screen').classList.remove('hidden');
+            
+            // Initialize map if not already done
+            if (!map) {
+                map = L.map('map').setView([20, 100], 3);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+            } else {
+                map.setView([20, 100], 3);
+            }
+            
+            // Clear previous route if exists
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+            }
+            
+            // Get the selected route
+            const route = journeys[routeType];
+            
+            // Create array of coordinates for the polyline
+            const coords = route.locations.map(loc => loc.coords);
+            
+            // Draw the route on the map
+            routePolyline = L.polyline(coords, {
+                color: `#${route.color}`,
+                weight: 5,
+                opacity: 0.7,
+                className: `${routeType}-route`
+            }).addTo(map);
+            
+            // Add markers for each location
+            route.locations.forEach((location, index) => {
+                const marker = L.marker(location.coords, {
+                    icon: L.divIcon({
+                        className: 'location-marker',
+                        html: `<div style="background-color:#${route.color}; color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center;">${index + 1}</div>`,
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map);
+                
+                marker.bindPopup(`<b>${location.name}</b><br>${location.description}`);
+                marker.on('click', () => {
+                    addStamp(location);
+                });
+            });
+            
+            // Fit map to show the entire route
+            map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+            
+            // Show start journey button
+            document.getElementById('start-journey-btn').classList.remove('hidden');
+        }
+
+        function startJourney() {
+            // Hide map and show journey screen
+            document.getElementById('map-screen').classList.add('hidden');
+            document.getElementById('journey-screen').classList.remove('hidden');
+            
+            // Set journey title and description
+            const route = journeys[currentRoute];
+            document.getElementById('journey-title').textContent = route.title;
+            document.getElementById('journey-description').textContent = route.description;
+            
+            // Create destination cards
+            const destinationsList = document.getElementById('destinations-list');
+            destinationsList.innerHTML = '';
+            
+            route.locations.forEach((location, index) => {
+                const card = document.createElement('div');
+                card.className = 'destination-card';
+
+                // Map location name to audio file
+                let audioFile = '';
+                switch (location.name) {
+                    case 'Great Wall of China':
+                        audioFile = 'audio/thegreatwall.mp3'; break;
+                    case 'Taj Mahal, India':
+                        audioFile = 'audio/tajMahal.mp3'; break;
+                    case 'Angkor Wat, Cambodia':
+                        audioFile = 'audio/angkorwat.mp3'; break;
+                    case 'Borobudur, Indonesia':
+                        audioFile = 'audio/borobudur.mp3'; break;
+                    case 'Kyoto Temples, Japan':
+                        audioFile = 'audio/kyoto.mp3'; break;
+                    case 'Potala Palace, Tibet':
+                        audioFile = 'audio/potalapalace.mp3'; break;
+                    case 'Meenakshi Temple, India':
+                        audioFile = 'audio/meenakshi.mp3'; break;
+                    case 'Shwedagon Pagoda, Myanmar':
+                        audioFile = 'audio/yangon.mp3'; break;
+                    case 'Kiyomizu-dera, Japan':
+                        audioFile = 'audio/kiyomizu.mp3'; break;
+                    case 'Wat Pho, Thailand':
+                        audioFile = 'audio/wat.mp3'; break;
+                    default:
+                        audioFile = '';
+                }
+
+                card.innerHTML = `
+                    <h3>${index + 1}. ${location.name}</h3>
+                    <p>${location.description}</p>
+                    <button class="street-view-btn" onclick="window.open('${location.streetView}', '_blank')">Explore in 360° View</button>
+                    ${audioFile ? `<audio controls style='margin-top:10px;width:100%'>\n  <source src='${audioFile}' type='audio/mpeg'>\n  Your browser does not support the audio element.\n</audio>` : ''}
+                `;
+                card.addEventListener('click', () => {
+                    addStamp(location);
+                });
+                destinationsList.appendChild(card);
+            });
+        }
+
+        function goBack() {
+            document.getElementById('map-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+        }
+
+        function goBackToMap() {
+            document.getElementById('journey-screen').classList.add('hidden');
+            document.getElementById('map-screen').classList.remove('hidden');
+        }
+
+        // Initialize passport when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initPassport);
+
+        // Menubar theme toggle script
+        function toggleTheme() {
+          const body = document.body;
+          const btn = document.getElementById('theme-toggle-btn');
+          body.classList.toggle('dark-mode');
+          if (body.classList.contains('dark-mode')) {
+            btn.textContent = '🌙'; // Show moon in dark mode (to switch back)
+          } else {
+            btn.textContent = '☀️'; // Show sun in light mode (to switch to dark)
+          }
+        }
+
+        // Set initial icon on page load
+        document.addEventListener('DOMContentLoaded', function() {
+          const btn = document.getElementById('theme-toggle-btn');
+          if (document.body.classList.contains('dark-mode')) {
+            btn.textContent = '🌙';
+          } else {
+            btn.textContent = '☀️';
+          }
+        });
+
+        const translations = {
+          en: {
+            title: "Asia Heritage & Culture Quest",
+            subtitle: "Embark on a journey through Asia's most iconic cultural landmarks!",
+            heritage: "UNESCO Heritage Trail",
+            heritageDesc: "Explore Asia's most treasured UNESCO World Heritage Sites.",
+            temples: "Sacred Temples & Shrines",
+            templesDesc: "Discover Asia's most spiritual and ancient religious sites."
+          },
+          hi: {
+            title: "एशिया विरासत और संस्कृति खोज",
+            subtitle: "एशिया के सबसे प्रतिष्ठित सांस्कृतिक स्थलों की यात्रा पर निकलें!",
+            heritage: "यूनेस्को विरासत यात्रा",
+            heritageDesc: "एशिया की सबसे कीमती यूनेस्को विश्व धरोहर स्थलों का अन्वेषण करें।",
+            temples: "पवित्र मंदिर और तीर्थ",
+            templesDesc: "एशिया के सबसे आध्यात्मिक और प्राचीन धार्मिक स्थलों की खोज करें।"
+          },
+          zh: {
+            title: "亚洲遗产与文化探索",
+            subtitle: "踏上探索亚洲最具标志性的文化地标之旅！",
+            heritage: "联合国教科文组织遗产之旅",
+            heritageDesc: "探索亚洲最珍贵的世界遗产地。",
+            temples: "神圣寺庙与神社",
+            templesDesc: "发现亚洲最具灵性和古老的宗教场所。"
+          },
+          ja: {
+            title: "アジア遺産と文化の探求",
+            subtitle: "アジアの最も象徴的な文化的ランドマークを巡る旅に出よう！",
+            heritage: "ユネスコ世界遺産トレイル",
+            heritageDesc: "アジアで最も貴重なユネスコ世界遺産を探検しよう。",
+            temples: "聖なる寺院と神社",
+            templesDesc: "アジアで最も精神的で古代の宗教的な場所を発見しよう。"
+          },
+          ko: {
+            title: "아시아 유산 & 문화 탐험",
+            subtitle: "아시아의 가장 상징적인 문화 명소를 여행하세요!",
+            heritage: "유네스코 유산 트레일",
+            heritageDesc: "아시아에서 가장 소중한 유네스코 세계유산을 탐험하세요.",
+            temples: "성스러운 사원과 신사",
+            templesDesc: "아시아에서 가장 영적이고 고대의 종교적 장소를 발견하세요."
+          },
+          th: {
+            title: "เอเชีย เฮอริเทจ & เควสต์วัฒนธรรม",
+            subtitle: "ออกเดินทางสู่สถานที่สำคัญทางวัฒนธรรมที่โดดเด่นที่สุดในเอเชีย!",
+            heritage: "เส้นทางมรดกโลกยูเนสโก",
+            heritageDesc: "สำรวจแหล่งมรดกโลกที่ล้ำค่าที่สุดในเอเชีย",
+            temples: "วัดและศาลเจ้าศักดิ์สิทธิ์",
+            templesDesc: "ค้นพบสถานที่ศาสนาโบราณและศักดิ์สิทธิ์ที่สุดในเอเชีย"
+          }
+        };
+
+        function updateLanguage(lang) {
+          const t = translations[lang] || translations.en;
+          document.querySelector('h1').innerText = t.title;
+          document.querySelector('header p').innerText = t.subtitle;
+          document.querySelector('.option-card:nth-child(1) h2').innerText = "🏛️ " + t.heritage;
+          document.querySelector('.option-card:nth-child(1) p').innerText = t.heritageDesc;
+          document.querySelector('.option-card:nth-child(2) h2').innerText = "🛕 " + t.temples;
+          document.querySelector('.option-card:nth-child(2) p').innerText = t.templesDesc;
+        }
+
+        document.getElementById('language-select').addEventListener('change', function() {
+          if (this.value === 'hi') {
+            window.location.assign('asia-travel-hindi.html');
+          } else {
+            updateLanguage(this.value);
+          }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+          updateLanguage(document.getElementById('language-select').value);
+        });
+
+        function loadPassportInfo() {
+          const saved = localStorage.getItem('asiaHeritagePassportInfo');
+          if (saved) {
+            const info = JSON.parse(saved);
+            document.getElementById('passport-name').value = info.name || 'Cultural Explorer';
+            document.getElementById('passport-nationality').value = info.nationality || 'Global Citizen';
+          }
+        }
+        document.getElementById('save-passport-info').addEventListener('click', function() {
+          const name = document.getElementById('passport-name').value;
+          const nationality = document.getElementById('passport-nationality').value;
+          localStorage.setItem('asiaHeritagePassportInfo', JSON.stringify({ name, nationality }));
+          alert('Passport info saved!');
+        });
+        document.addEventListener('DOMContentLoaded', loadPassportInfo);
+    </script>
+</body>
+</html>
