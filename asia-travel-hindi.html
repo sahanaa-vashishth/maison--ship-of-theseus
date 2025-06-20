@@ -735,8 +735,131 @@
             }
         };
 
-        // Remove all passport-related JS logic from here (handled by passport.js)
+        // Global variables
+        let currentJourney = null;
+        let map = null;
+        let markers = [];
+        let routeLayer = null;
 
+        // Function to show selected route
+        function showRoute(routeType) {
+            currentJourney = journeys[routeType];
+            
+            // Hide home screen and show map screen
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('map-screen').classList.remove('hidden');
+            
+            // Initialize map if not already done
+            if (!map) {
+                initMap();
+            } else {
+                // Clear existing markers and route
+                clearMap();
+            }
+            
+            // Show journey locations on map
+            showJourneyLocations();
+            
+            // Show start journey button
+            document.getElementById('start-journey-btn').classList.remove('hidden');
+        }
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([20, 100], 3);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        }
+
+        // Clear map markers and route
+        function clearMap() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+                routeLayer = null;
+            }
+        }
+
+        // Show journey locations on map
+        function showJourneyLocations() {
+            const locations = currentJourney.locations;
+            const routeCoordinates = [];
+            
+            locations.forEach(location => {
+                const marker = L.marker(location.coords)
+                    .addTo(map)
+                    .bindPopup(`<b>${location.name}</b><br>${location.country}`);
+                
+                markers.push(marker);
+                routeCoordinates.push(location.coords);
+            });
+            
+            // Add route line
+            routeLayer = L.polyline(routeCoordinates, {
+                color: `#${currentJourney.color}`,
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            // Fit map to show all markers
+            map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [50, 50] });
+        }
+
+        // Start journey - show journey details screen
+        function startJourney() {
+            document.getElementById('map-screen').classList.add('hidden');
+            document.getElementById('journey-screen').classList.remove('hidden');
+            
+            // Set journey title and description
+            document.getElementById('journey-title').textContent = currentJourney.title;
+            document.getElementById('journey-description').textContent = currentJourney.description;
+            
+            // Create destination cards
+            const destinationsList = document.getElementById('destinations-list');
+            destinationsList.innerHTML = '';
+            
+            currentJourney.locations.forEach(location => {
+                const card = document.createElement('div');
+                card.className = 'destination-card';
+                card.innerHTML = `
+                    <h3>${location.name} ${location.emoji}</h3>
+                    <p>${location.description}</p>
+                    <a href="${location.streetView}" target="_blank" class="street-view-btn">स्ट्रीट व्यू देखें</a>
+                `;
+                destinationsList.appendChild(card);
+            });
+        }
+
+        // Go back to options screen
+        function goBack() {
+            document.getElementById('map-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+        }
+
+        // Go back to map from journey screen
+        function goBackToMap() {
+            document.getElementById('journey-screen').classList.add('hidden');
+            document.getElementById('map-screen').classList.remove('hidden');
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('theme-toggle-btn');
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                btn.textContent = '☀️';
+            } else {
+                btn.textContent = '🌙';
+            }
+        }
+
+        // Language change handler
         document.getElementById('language-select').addEventListener('change', function() {
             if (this.value === 'en') {
                 window.location.assign('asia-travel.html');
@@ -744,23 +867,13 @@
             // If Hindi is selected, do nothing (already on Hindi page)
         });
 
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById('theme-toggle-btn');
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
-                btn.textContent = '🌙';
-            } else {
-                btn.textContent = '☀️';
-            }
-        }
-
+        // Initialize theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             const btn = document.getElementById('theme-toggle-btn');
             if (document.body.classList.contains('dark-mode')) {
-                btn.textContent = '🌙';
-            } else {
                 btn.textContent = '☀️';
+            } else {
+                btn.textContent = '🌙';
             }
         });
     </script>
